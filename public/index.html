@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Oska Web Hakediş</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:900&amp;subset=latin-ext" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i&amp;subset=latin-ext" rel="stylesheet">
+    <script src="lodash.js"></script>
+    <style type="text/css">
+    	div > div > div {
+    		padding: 10px 0;
+    		border: 1px solid black;
+    	}
+    </style>
+</head>
+<body>
+
+	<form id="workitem-form">
+
+		<div style="padding: 20px;">
+			Name<br>
+			<input type="text" name="name" value="10.061/2">
+			<br>
+		</div>
+
+		<div style="padding: 20px;">
+			Description<br>
+			<input type="text" name="description" value="Saten alçı harcı yapılması">
+			<br>
+		</div>
+
+		<div style="padding: 20px;">
+			Unit<br>
+			<input type="text" name="unit" value="m³">
+			<br>
+		</div>
+
+		<div style="padding: 20px;">
+			UnitPrice<br>
+			<input type="text" name="unitPrice">
+			<br>
+		</div>
+
+		<div style="padding: 20px;">
+			SubWorkItems<br>
+			<input type="text" name="subWorkItems" value="5a53673f455eaf0529aa19cd:0.6, 5a536783455eaf0529aa19ea:750, 5a5367c3455eaf0529aa19fe:4.5, 5a5367ee455eaf0529aa1a0b:1">
+			<br>
+		</div>
+
+		<button type="submit" id="submit-btn" style="margin-left: 135px;">Submit</button>
+	</form>
+
+	<div id="workitems-list" style="margin: 20px; min-width: 800px;">
+		<div style="width: 100%; display: flex;">
+			<div style="width: 200px;"><span>_id</span></div>
+			<div style="width: 80px;"><span>Number</span></div>
+			<div style="width: 250px;"><span>Description</span></div>
+			<div style="width: 40px;"><span>Unit</span></div>
+			<div style="width: 120px;"><span>UnitPrice</span></div>
+			<div style="flex: 1;"><span>SubWorkItems</span></div>
+		</div>
+	</div>
+
+  <script>
+   	$(document).ready(() => {
+   		$("#workitem-form").submit(e => {
+   			e.preventDefault();
+   			var $inputs = $('#workitem-form :input');
+		    var values = {};
+
+		    $inputs.each(function () {
+		      values[this.name] = this.name == "unitPrice" ? parseFloat($(this).val()) : $(this).val();
+		    });
+
+		    delete values[""];
+
+		    let subWorkItems = values.subWorkItems.replace(/ /g, "").split(",");
+		    let _subWorkItems = [];
+				subWorkItems.forEach(item => {
+					_subWorkItems.push({
+						workItemId: item.split(":")[0],
+						quantity: parseFloat(item.split(":")[1])
+					})
+				});
+
+
+				values.subWorkItems = _subWorkItems;
+
+		    $.ajax({
+            url: '/api/AddWorkItem',
+            type: "POST",
+            data: JSON.stringify(values),
+            dataType: "json",
+            traditional: true,
+            contentType: "application/json; charset=utf-8",
+            success: success => {
+            	location.reload();
+            },
+            error: error => {
+            	console.log(error);
+            }
+        });
+
+   		});
+
+   		$.ajax({
+            url: '/api/GetWorkItems',
+            type: "GET",
+            dataType: "json",
+            traditional: true,
+            contentType: "application/json; charset=utf-8",
+            success: success => {
+            	console.log(success);
+            	success.forEach(item => {
+            		$("#workitems-list").append(`
+            		  <div style="width: 100%; display: flex;">
+										<div style="width: 200px;"><span>` + item._id + `</span></div>
+										<div style="width: 80px;"><span>` + item.name + `</span></div>
+										<div style="width: 250px;"><span>` + item.description + `</span></div>
+										<div style="width: 40px;"><span>` + item.unit + `</span></div>
+										<div style="width: 120px;"><span id="` + item._id + `">` + item.unitPrice + `</span></div>
+										<div style="flex: 1;"><span>` + _.map(item.subWorkItems, 'workItem.name').join(", ") + `</span></div>
+									</div>
+								`);
+            	});
+            },
+            error: error => {
+            	console.log(error);
+            }
+        });
+
+   		function analyze (data) {
+   			console.log(data);
+   		}
+   	});
+  </script>
+</body>
+</html>
+
+
