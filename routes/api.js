@@ -9,7 +9,6 @@ router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
 
-var items;
 router.get('/GetWorkItems', function(req, res, next) {
 	let query = JSON.parse(JSON.stringify(req.query));
 
@@ -30,13 +29,14 @@ function populate(_data, callback) {
 		if (_.compact(item.subWorkItems).length) {
 			async.each(item.subWorkItems, (subWorkItem, next) => {
 				model.WorkItem.find({_id: subWorkItem.workItemId}, (err, data) => {
-					subWorkItem.workItem = data[0];
-					if (subWorkItem.workItem) {
-						next();
+					subWorkItem.workItem = JSON.parse(JSON.stringify(data[0]));
+					if (subWorkItem.workItem.subWorkItems.length) {
+						subPopulate(subWorkItem.workItem.subWorkItems, (err, _data) => {
+							next();
+						});
 					} else {
 						next();
 					}
-
 				});
 			}, () => {
 				next();
@@ -46,6 +46,23 @@ function populate(_data, callback) {
 		}
 	}, () => {
 		callback(null, _data)
+	});
+}
+
+function subPopulate(data, callback) {
+	async.each(data, (subWorkItem, next) => {
+		model.WorkItem.find({_id: subWorkItem.workItemId}, (err, data) => {
+			subWorkItem.workItem = JSON.parse(JSON.stringify(data[0]));
+			if (subWorkItem.workItem.subWorkItems.length) {
+				subPopulate(subWorkItem.workItem.subWorkItems, (err, _data) => {
+					next();
+				});
+			} else {
+				next();
+			}
+		});
+	}, () => {
+		callback();
 	});
 }
 

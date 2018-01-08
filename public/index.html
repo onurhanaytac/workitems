@@ -22,19 +22,19 @@
 
 		<div style="padding: 20px;">
 			Name<br>
-			<input type="text" name="name" value="10.061/2">
+			<input type="text" name="name">
 			<br>
 		</div>
 
 		<div style="padding: 20px;">
 			Description<br>
-			<input type="text" name="description" value="Saten alçı harcı yapılması">
+			<input type="text" name="description">
 			<br>
 		</div>
 
 		<div style="padding: 20px;">
 			Unit<br>
-			<input type="text" name="unit" value="m³">
+			<input type="text" name="unit">
 			<br>
 		</div>
 
@@ -46,7 +46,7 @@
 
 		<div style="padding: 20px;">
 			SubWorkItems<br>
-			<input type="text" name="subWorkItems" value="5a53673f455eaf0529aa19cd:0.6, 5a536783455eaf0529aa19ea:750, 5a5367c3455eaf0529aa19fe:4.5, 5a5367ee455eaf0529aa1a0b:1">
+			<input type="text" name="subWorkItems">
 			<br>
 		</div>
 
@@ -58,7 +58,7 @@
 			<div style="width: 200px;"><span>_id</span></div>
 			<div style="width: 80px;"><span>Number</span></div>
 			<div style="width: 250px;"><span>Description</span></div>
-			<div style="width: 40px;"><span>Unit</span></div>
+			<div style="width: 66px;"><span>Unit</span></div>
 			<div style="width: 120px;"><span>UnitPrice</span></div>
 			<div style="flex: 1;"><span>SubWorkItems</span></div>
 		</div>
@@ -80,15 +80,17 @@
 		    let subWorkItems = values.subWorkItems.replace(/ /g, "").split(",");
 		    let _subWorkItems = [];
 				subWorkItems.forEach(item => {
-					_subWorkItems.push({
-						workItemId: item.split(":")[0],
-						quantity: parseFloat(item.split(":")[1])
-					})
+					if (item.split(":")[0]) {
+						_subWorkItems.push({
+							workItemId: item.split(":")[0],
+							quantity: parseFloat(item.split(":")[1])
+						});
+					}
 				});
 
+					values.subWorkItems = _subWorkItems;
 
-				values.subWorkItems = _subWorkItems;
-
+				console.log(values)
 		    $.ajax({
             url: '/api/AddWorkItem',
             type: "POST",
@@ -120,7 +122,7 @@
 										<div style="width: 200px;"><span>` + item._id + `</span></div>
 										<div style="width: 80px;"><span>` + item.name + `</span></div>
 										<div style="width: 250px;"><span>` + item.description + `</span></div>
-										<div style="width: 40px;"><span>` + item.unit + `</span></div>
+										<div style="width: 66px;"><span>` + item.unit + `</span></div>
 										<div style="width: 120px;"><span id="` + item._id + `">` + item.unitPrice + `</span></div>
 										<div style="flex: 1;"><span>` + _.map(item.subWorkItems, 'workItem.name').join(", ") + `</span></div>
 									</div>
