@@ -88,9 +88,8 @@
 					}
 				});
 
-					values.subWorkItems = _subWorkItems;
+				values.subWorkItems = _subWorkItems;
 
-				console.log(values)
 		    $.ajax({
             url: '/api/AddWorkItem',
             type: "POST",
@@ -109,34 +108,30 @@
    		});
 
    		$.ajax({
-            url: '/api/GetWorkItems',
-            type: "GET",
-            dataType: "json",
-            traditional: true,
-            contentType: "application/json; charset=utf-8",
-            success: success => {
-            	console.log(success);
-            	success.forEach(item => {
-            		$("#workitems-list").append(`
-            		  <div style="width: 100%; display: flex;">
-										<div style="width: 200px;"><span>` + item._id + `</span></div>
-										<div style="width: 80px;"><span>` + item.name + `</span></div>
-										<div style="width: 250px;"><span>` + item.description + `</span></div>
-										<div style="width: 66px;"><span>` + item.unit + `</span></div>
-										<div style="width: 120px;"><span id="` + item._id + `">` + item.unitPrice + `</span></div>
-										<div style="flex: 1;"><span>` + _.map(item.subWorkItems, 'workItem.name').join(", ") + `</span></div>
-									</div>
-								`);
-            	});
-            },
-            error: error => {
-            	console.log(error);
-            }
-        });
-
-   		function analyze (data) {
-   			console.log(data);
-   		}
+        url: '/api/GetWorkItems',
+        type: "GET",
+        dataType: "json",
+        traditional: true,
+        contentType: "application/json; charset=utf-8",
+        success: success => {
+        	console.log(success);
+        	success.forEach(item => {
+        		$("#workitems-list").append(`
+        		  <div style="width: 100%; display: flex;">
+								<div style="width: 200px;"><span>` + item._id + `</span></div>
+								<div style="width: 80px;"><span>` + item.name + `</span></div>
+								<div style="width: 250px;"><span>` + item.description + `</span></div>
+								<div style="width: 66px;"><span>` + item.unit + `</span></div>
+								<div style="width: 120px;"><span id="` + item._id + `">` + item.unitPrice.toFixed(2) + `</span></div>
+								<div style="flex: 1;"><span>` + _.map(item.subWorkItems, 'workItem.name').join(", ") + `</span></div>
+							</div>
+						`);
+        	});
+        },
+        error: error => {
+        	console.log(error);
+        }
+   	  });
    	});
   </script>
 </body>
